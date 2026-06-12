@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GroupOS for Pavilion</title>
+<meta name="description" content="How GroupOS adds events, a branded app, member directory, and monetization on top of the Slack Pavilion already uses — without moving a single member.">
+<meta property="og:title" content="GroupOS for Pavilion — Your Members. Your App. Around the Slack You Already Use.">
+<meta property="og:description" content="The events + branded-app + monetization layer for Pavilion, on top of the chat your 10,000 operators already live in.">
+<meta property="og:image" content="https://cdn.prod.website-files.com/673e4117f87b553a20b29eca/679d310dc7908524729da405_img-main-community.webp">
+<meta property="og:type" content="website">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
+  @font-face{font-family:'Mona Sans';src:url('https://cdn.jsdelivr.net/fontsource/fonts/mona-sans:vf@latest/latin-wght-normal.woff2') format('woff2');font-weight:200 900;font-stretch:75% 125%;font-display:swap}
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{
+    --dk:#1a1a25;--wh:#ffffff;--pink:#df285b;--pink-bg:rgba(223,40,91,0.08);--cream:#fedea6;
+    --g50:#fafafa;--g100:#f5f4f7;--g200:#e7e6ec;--g300:#d4d3da;
+    --g400:#a3a2a9;--g500:#76757f;--g600:#52525e;--g700:#3a3a45;
+    --tx:#1a1a25;--txm:#52525e;--txl:#76757f;
+    --r:16px;--sh:0 4px 24px rgba(26,26,37,0.08);--shl:0 12px 48px rgba(26,26,37,0.13);
+  }
+  body{font-family:'Mona Sans',sans-serif;background:#fff;color:var(--tx);overflow:hidden;height:100vh;width:100vw}
+  .slide{display:none;width:100vw;height:100vh;padding:56px 72px;flex-direction:column;justify-content:center;position:relative;overflow:hidden}
+  .slide.active{display:flex}
+  .s-dk{background:var(--dk);color:#fff}
+  .s-wh{background:#fff;color:var(--tx)}
+  .nav{position:fixed;bottom:28px;right:36px;display:flex;gap:8px;z-index:100;align-items:center}
+  .nb{width:44px;height:44px;border-radius:50%;border:1px solid var(--g200);background:#fff;color:var(--tx);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+  .nb:hover{background:var(--pink);border-color:var(--pink);color:#fff}
+  .ct{font-size:13px;color:var(--g500);font-weight:600;margin:0 8px;letter-spacing:1px}
+  body.dk .nb{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.16);color:#fff}
+  body.dk .nb:hover{background:var(--pink);border-color:var(--pink);color:#fff}
+  body.dk .ct{color:rgba(255,255,255,.4)}
+  .progress{position:fixed;top:0;left:0;height:3px;background:var(--pink);transition:width .4s ease;z-index:100}
+  .wm{position:fixed;bottom:30px;left:36px;z-index:100}
+  .wm-logo{height:14px;opacity:.3}
+  body.dk .wm-logo{filter:brightness(0) invert(1);opacity:.4}
+  h1{font-family:'Lora',serif;font-size:60px;font-weight:400;line-height:1.08;letter-spacing:-1.5px}
+  h2{font-family:'Lora',serif;font-size:45px;font-weight:400;line-height:1.12;letter-spacing:-.5px;margin-bottom:12px}
+  h3{font-size:22px;font-weight:700;margin-bottom:6px}
+  h1 b,h2 b{font-family:'Mona Sans',sans-serif;font-weight:800;font-style:normal}
+  .cta-c h1{font-family:'Mona Sans',sans-serif;font-weight:800;letter-spacing:-1.5px}
+  p{font-size:18px;line-height:1.6;color:var(--txm)}
+  .sub{font-size:21px;color:var(--txm);font-weight:400;margin-top:14px;line-height:1.55;max-width:600px}
+  .pill{display:inline-block;padding:6px 16px;border-radius:20px;font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;background:var(--pink);color:#fff;margin-bottom:14px}
+  .s-dk p{color:rgba(255,255,255,.62)}
+  .s-dk .sub{color:rgba(255,255,255,.6)}
+  .logo{height:42px;margin-bottom:22px;display:block}
+  .wordmark{font-family:'Mona Sans',sans-serif;font-weight:800;font-size:27px;letter-spacing:-.5px;color:#fff;margin-bottom:22px;display:flex;align-items:center;gap:10px}
+  .wordmark span{width:9px;height:9px;border-radius:50%;background:var(--pink);display:inline-block}
+  .g2ti{display:grid;grid-template-columns:.95fr 1.05fr;gap:52px;align-items:center}
+  .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+  .imh{width:100%;border-radius:var(--r);box-shadow:var(--shl);display:block;object-fit:contain}
+  .ft{list-style:none;margin-top:14px}
+  .ft li{padding:8px 0;display:flex;gap:10px;font-size:17px;line-height:1.5;align-items:flex-start}
+  .dt{width:8px;height:8px;border-radius:50%;background:var(--pink);flex-shrink:0;margin-top:8px}
+  .ft li span{color:var(--txm)}
+  .ft li strong{color:var(--tx)}
+  .sts{display:flex;gap:40px;margin-top:26px}
+  .sts>div{display:flex;flex-direction:column;justify-content:flex-end}
+  .stn{font-family:'Mona Sans',sans-serif;font-size:34px;font-weight:800;min-height:42px;display:flex;align-items:flex-end;color:var(--pink)}
+  .stl{font-size:14px;color:var(--txl);margin-top:4px;font-weight:500}
+  .s-dk .stl{color:rgba(255,255,255,.55)}
+  .flow{display:flex;align-items:center;gap:8px;margin-top:18px;flex-wrap:wrap}
+  .fl-i{background:var(--g100);border-radius:8px;padding:8px 16px;font-size:16px;font-weight:600;color:var(--txm)}
+  .fl-a{color:var(--g400);font-size:16px}
+  .pn{background:var(--g50);border-radius:var(--r);padding:24px;border-left:4px solid var(--pink)}
+  .pn h3{font-size:18px;font-weight:700}
+  .pn p{font-size:15px;color:var(--txl);margin-top:4px}
+  .note{margin-top:24px;font-size:16px;color:var(--txm);max-width:760px}
+  .note b{color:var(--tx);font-weight:800}
+  .orbit{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;margin:6px 0 4px}
+  .core{background:var(--dk);color:#fff;font-weight:800;font-size:18px;border-radius:12px;padding:16px 26px}
+  .sat{background:var(--pink-bg);border:1px solid rgba(223,40,91,.45);color:var(--tx);font-weight:700;font-size:15px;border-radius:10px;padding:11px 16px}
+  .logos{display:flex;gap:22px;align-items:center;margin-top:26px}
+  .logos span{font-family:'Mona Sans';font-weight:800;font-size:19px;color:#fff;opacity:.92}
+  .logos .dotsep{color:var(--pink);opacity:.9}
+  .tl{margin-top:18px}
+  .tl-i{display:flex;gap:18px;padding:15px 0;border-bottom:1px solid var(--g200)}
+  .tl-i:last-child{border-bottom:none}
+  .tl-w{flex-shrink:0;font-weight:800;font-size:14px;background:var(--pink);color:#fff;text-align:center;border-radius:8px;padding:6px 14px;height:fit-content;white-space:nowrap}
+  .tl-c h4{font-size:18px;font-weight:700;margin-bottom:3px}
+  .tl-c p{font-size:15px;color:var(--txl)}
+  .cta-c{text-align:center;display:flex;flex-direction:column;align-items:center}
+  @keyframes fi{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+  .slide.active>*{animation:fi .4s ease-out both}
+  .slide.active>*:nth-child(2){animation-delay:.08s}
+  .slide.active>*:nth-child(3){animation-delay:.16s}
+  .slide.active>*:nth-child(4){animation-delay:.24s}
+  @media(max-width:768px){
+    .slide{padding:36px 20px}
+    h1{font-size:34px}h2{font-size:27px}h3{font-size:18px}
+    p{font-size:15px}.sub{font-size:17px}
+    .g2ti{grid-template-columns:1fr;gap:20px}
+    .g3{grid-template-columns:1fr}
+    .sts{gap:20px}.flow{flex-wrap:wrap}
+    .nav{bottom:14px;right:14px}.wm{bottom:16px;left:14px}
+    .ft li{font-size:15px}.pill{font-size:11px}.logo{height:34px}
+  }
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+<div class="wm"><img src="groupos-logo.svg" alt="GroupOS" class="wm-logo"></div>
+<div class="nav">
+  <button class="nb" onclick="prev()">&#8592;</button>
+  <span class="ct" id="ct">1 / 10</span>
+  <button class="nb" onclick="next()">&#8594;</button>
+</div>
+
+<!-- 1. COVER -->
+<div class="slide s-wh active">
+  <div class="g2ti">
+    <div>
+      <img src="pavilion-logo.png" alt="Pavilion" class="logo">
+      <span class="pill">For Pavilion</span>
+      <h1>Your members. Your app.<br>Built around the <b>community</b> you already run.</h1>
+      <p class="sub">GroupOS adds the events, branded app, member directory, and monetization layer on top of the chat your 10,000 GTM operators already live in. Nobody moves.</p>
+      <div class="sts">
+        <div><div class="stn">1</div><div class="stl">App for everything</div></div>
+        <div><div class="stn">iOS + Android</div><div class="stl">Native apps</div></div>
+        <div><div class="stn">0</div><div class="stl">Members asked to move</div></div>
+      </div>
+    </div>
+    <div>
+      <img src="https://cdn.prod.website-files.com/673e4117f87b553a20b29eca/679d310dc7908524729da405_img-main-community.webp" alt="GroupOS community app" class="imh" style="border-radius:20px">
+    </div>
+  </div>
+</div>
+
+<!-- 2. THE CHALLENGE -->
+<div class="slide s-wh">
+  <span class="pill">We understand Pavilion</span>
+  <h2><b>10,000 operators.</b> Five places to reach them.</h2>
+  <p style="max-width:720px">Pavilion runs Chapters across cities, Pavilion University, roadshows, and GTM2026 — with the community itself living in Slack. Today the experience is spread across:</p>
+  <div class="flow">
+    <div class="fl-i">Slack</div><div class="fl-a">+</div>
+    <div class="fl-i">Member Hub app</div><div class="fl-a">+</div>
+    <div class="fl-i">Pavilion University</div><div class="fl-a">+</div>
+    <div class="fl-i">Chapter events</div><div class="fl-a">+</div>
+    <div class="fl-i">Member directory</div>
+  </div>
+  <div style="margin-top:26px">
+    <h3 style="color:var(--g700);font-size:20px;margin-bottom:14px">The result?</h3>
+    <div class="g3">
+      <div class="pn"><h3>No single home</h3><p>Members hop between Slack, the Member Hub app, and Pavilion University — each its own login. Nothing ties them together.</p></div>
+      <div class="pn"><h3>Events sit outside the community</h3><p>Chapters, roadshows, and GTM2026 run on event tools disconnected from day-to-day engagement and the member record.</p></div>
+      <div class="pn"><h3>The directory is stranded</h3><p>Your single best asset — 10,000 operators — isn't where the events and conversations actually happen.</p></div>
+    </div>
+  </div>
+  <p class="note">You built the <b>Member Hub</b> app to fix this — but it became one more silo to staff, maintain, and ship updates for.</p>
+</div>
+
+<!-- 3. THE WEDGE -->
+<div class="slide s-wh">
+  <span class="pill">The wedge</span>
+  <h2><b>Keep Slack.</b> Organize everything around it.</h2>
+  <p style="max-width:720px">Members keep the Slack they already love. GroupOS layers the rest of the experience around it — one branded home they actually open.</p>
+  <div class="orbit">
+    <div class="sat">Events &amp; check-in</div>
+    <div class="sat">Registration</div>
+    <div class="core">Slack &nbsp;stays</div>
+    <div class="sat">Member directory</div>
+    <div class="sat">Branded app</div>
+    <div class="sat">Monetization</div>
+  </div>
+  <p class="note" style="margin-top:22px">Members keep the chat they live in. GroupOS adds events, the directory, the app, and revenue <b>on top of it</b> — so there's zero switching cost and <b>nobody has to move.</b></p>
+</div>
+
+<!-- 4. PROOF -->
+<div class="slide s-dk">
+  <span class="pill">Proof</span>
+  <h2 style="color:#fff"><b>What MDS saw</b> in year one.</h2>
+  <p class="sub" style="max-width:560px">MDS runs a premium operator community on GroupOS — the same playbook we'd run for Pavilion.</p>
+  <div class="sts" style="gap:64px;margin-top:34px">
+    <div><div class="stn" style="font-size:52px;min-height:60px">+20%</div><div class="stl" style="font-size:15px">Attendee engagement</div></div>
+    <div><div class="stn" style="font-size:52px;min-height:60px">+15%</div><div class="stl" style="font-size:15px">Upsell revenue</div></div>
+    <div><div class="stn" style="font-size:52px;min-height:60px">&minus;30%</div><div class="stl" style="font-size:15px">Admin workload</div></div>
+  </div>
+  <div class="logos"><span>MDS</span><span class="dotsep">&middot;</span><span>The Founders Club</span></div>
+</div>
+
+<!-- 5. MEMBER DIRECTORY -->
+<div class="slide s-wh">
+  <div class="g2ti">
+    <div>
+      <span class="pill">Member directory &amp; map</span>
+      <h2><b>10,000 operators,</b><br>one searchable network.</h2>
+      <p style="max-width:440px">Your members' biggest reason to join is each other. GroupOS puts the whole network in one searchable directory — with a map of who's where.</p>
+      <ul class="ft">
+        <li><div class="dt"></div><span><strong>Rich profiles</strong> — role, company, GTM function (sales, marketing, CS, RevOps), and direct in-app messaging</span></li>
+        <li><div class="dt"></div><span><strong>Search &amp; filter by anything</strong> — name, city, function, or custom tags, in seconds</span></li>
+        <li><div class="dt"></div><span><strong>Members map</strong> — see who's in each Chapter city; operators travelling can find locals instantly</span></li>
+        <li><div class="dt"></div><span><strong>Year-round, not just at GTM2026</strong> — matchmaking and intros run every day, not once a year</span></li>
+      </ul>
+    </div>
+    <div><img src="members-map.png" alt="Member directory and map" class="imh"></div>
+  </div>
+</div>
+
+<!-- 6. EVENTS & CHECK-IN -->
+<div class="slide s-wh">
+  <div class="g2ti">
+    <div>
+      <span class="pill">Events &amp; check-in</span>
+      <h2><b>Chapters, roadshows, GTM2026</b> — one engine.</h2>
+      <p style="max-width:440px">From a local Chapter dinner to a 1,000-operator summit, run the full event lifecycle in the same app the community lives in.</p>
+      <ul class="ft">
+        <li><div class="dt"></div><span><strong>Registration &amp; ticketing</strong> — GA, VIP, early-bird and group passes with Apple Pay / Google Pay, powered by Stripe</span></li>
+        <li><div class="dt"></div><span><strong>Interactive agendas</strong> — multi-room, multi-day session builder with speaker profiles and venue maps</span></li>
+        <li><div class="dt"></div><span><strong>One-scan QR check-in</strong> — instant entry, multi-session tracking, and a live attendance dashboard at every Chapter event</span></li>
+        <li><div class="dt"></div><span><strong>Auto-reminders &amp; event channels</strong> — push notifications cut no-shows; auto-created channels for attendee networking</span></li>
+      </ul>
+    </div>
+    <div><img src="img/events-hero.webp" alt="Events and agenda management" class="imh"></div>
+  </div>
+</div>
+
+<!-- 7. MEMBERSHIP & MONETIZATION -->
+<div class="slide s-wh">
+  <div class="g2ti">
+    <div>
+      <span class="pill">Membership &amp; monetization</span>
+      <h2><b>Your tiers,</b><br>gated and monetized.</h2>
+      <p style="max-width:440px">Map every Pavilion tier to exactly what those members can see and do — and turn content, events, and partners into revenue.</p>
+      <ul class="ft">
+        <li><div class="dt"></div><span><strong>Your real tiers</strong> — Associate, Executive, Gold, CEO, and Pavilion for Teams, each with its own branded experience</span></li>
+        <li><div class="dt"></div><span><strong>Module-based access</strong> — control which features every tier sees: events, directory, University content, channels</span></li>
+        <li><div class="dt"></div><span><strong>Billing built in</strong> — monthly, quarterly, or annual pricing with discounts, free trials, and auto-renewal via Stripe</span></li>
+        <li><div class="dt"></div><span><strong>New revenue lines</strong> — gate premium University content, sell event add-ons, and monetize sponsor placements</span></li>
+      </ul>
+    </div>
+    <div><img src="img/membership-hero.webp" alt="Membership tiers and plans" class="imh"></div>
+  </div>
+</div>
+
+<!-- 8. WHITE-LABEL APP -->
+<div class="slide s-wh">
+  <div class="g2ti">
+    <div>
+      <span class="pill">Your app, your brand</span>
+      <h2><b>Pavilion in the App Store</b> — without building it.</h2>
+      <p style="max-width:440px">This is the answer to the Member Hub you built and now have to maintain. A fully white-labeled iOS + Android app — your brand, not ours. We run it; you own it.</p>
+      <ul class="ft">
+        <li><div class="dt"></div><span><strong>Custom app name</strong> in the App Store and Google Play</span></li>
+        <li><div class="dt"></div><span><strong>Your logo and colors</strong> throughout the entire experience</span></li>
+        <li><div class="dt"></div><span><strong>Branded push notifications</strong> from Pavilion — ~70% open vs ~20% for email</span></li>
+        <li><div class="dt"></div><span><strong>No app team to staff</strong> — updates, App Store releases, and maintenance are on us</span></li>
+      </ul>
+    </div>
+    <div style="display:flex;justify-content:center">
+      <div style="background:#fff;border-radius:24px;box-shadow:var(--shl);padding:26px;width:100%;max-width:430px">
+        <div style="display:flex;gap:16px;align-items:center">
+          <div style="width:74px;height:74px;border-radius:17px;background:linear-gradient(145deg,#df285b,#7a2bb0);display:flex;align-items:center;justify-content:center;flex:none">
+            <svg width="40" height="32" viewBox="0 0 40 32" fill="none"><path d="M3 30 L15 5 L20 15 L25 5 L37 30" stroke="#fff" stroke-width="4.5" stroke-linejoin="round" stroke-linecap="round"/></svg>
+          </div>
+          <div style="flex:1">
+            <div style="font-weight:800;font-size:21px;color:#1a1a25;line-height:1.1">Pavilion</div>
+            <div style="font-size:13px;color:#76757f;margin:3px 0 10px">Community, Events &amp; Networking</div>
+            <div style="display:flex;align-items:center;gap:12px">
+              <span style="background:#df285b;color:#fff;font-weight:800;font-size:13px;letter-spacing:.5px;padding:6px 24px;border-radius:999px">GET</span>
+              <span style="font-size:11px;color:#a3a2a9">In-App Purchases</span>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:space-between;text-align:center;border-top:1px solid #f0f0f3;border-bottom:1px solid #f0f0f3;margin:18px 0;padding:13px 0">
+          <div style="flex:1"><div style="font-weight:800;font-size:15px;color:#1a1a25">4.9 &#9733;</div><div style="font-size:9px;color:#a3a2a9;text-transform:uppercase;letter-spacing:.6px;margin-top:4px">1.2K Ratings</div></div>
+          <div style="flex:1;border-left:1px solid #f0f0f3;border-right:1px solid #f0f0f3"><div style="font-weight:800;font-size:15px;color:#1a1a25">#3</div><div style="font-size:9px;color:#a3a2a9;text-transform:uppercase;letter-spacing:.6px;margin-top:4px">Business</div></div>
+          <div style="flex:1"><div style="font-weight:800;font-size:15px;color:#1a1a25">4+</div><div style="font-size:9px;color:#a3a2a9;text-transform:uppercase;letter-spacing:.6px;margin-top:4px">Age</div></div>
+        </div>
+        <div style="display:flex;gap:10px">
+          <div style="flex:1;border-radius:11px;border:1px solid #eee;overflow:hidden;background:#fafafa"><div style="height:24px;background:#df285b;display:flex;align-items:center;padding:0 8px;color:#fff;font-size:8px;font-weight:800">Pavilion</div><div style="padding:9px 8px"><div style="height:6px;width:70%;background:#e7e6ec;border-radius:3px;margin-bottom:6px"></div><div style="height:30px;background:#f3eef1;border-radius:6px;margin-bottom:6px"></div><div style="height:6px;width:50%;background:#e7e6ec;border-radius:3px"></div></div></div>
+          <div style="flex:1;border-radius:11px;border:1px solid #eee;overflow:hidden;background:#fafafa"><div style="height:24px;background:#df285b;display:flex;align-items:center;padding:0 8px;color:#fff;font-size:8px;font-weight:800">Events</div><div style="padding:9px 8px"><div style="height:22px;background:#f3eef1;border-radius:6px;margin-bottom:6px"></div><div style="height:22px;background:#f3eef1;border-radius:6px;margin-bottom:6px"></div><div style="height:6px;width:60%;background:#e7e6ec;border-radius:3px"></div></div></div>
+          <div style="flex:1;border-radius:11px;border:1px solid #eee;overflow:hidden;background:#fafafa"><div style="height:24px;background:#df285b;display:flex;align-items:center;padding:0 8px;color:#fff;font-size:8px;font-weight:800">Members</div><div style="padding:9px 8px;display:flex;flex-wrap:wrap;gap:5px">&#8203;<div style="width:16px;height:16px;border-radius:50%;background:#f3c0d1"></div><div style="width:16px;height:16px;border-radius:50%;background:#cebdee"></div><div style="width:16px;height:16px;border-radius:50%;background:#f3c0d1"></div><div style="width:16px;height:16px;border-radius:50%;background:#cebdee"></div><div style="width:16px;height:16px;border-radius:50%;background:#f3c0d1"></div><div style="width:16px;height:16px;border-radius:50%;background:#cebdee"></div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 9. THE OFFER -->
+<div class="slide s-wh">
+  <span class="pill">The offer</span>
+  <h2><b>Free migration off Member Hub</b> — in weeks.</h2>
+  <p style="max-width:640px">We do the heavy lifting. Your team provides the content; we move everything off the Member Hub app. Slack stays exactly where it is.</p>
+  <div class="tl">
+    <div class="tl-i"><div class="tl-w">Week 1</div><div class="tl-c"><h4>Setup &amp; brand</h4><p>Configure the app with Pavilion branding, your membership tiers, and Chapter structure.</p></div></div>
+    <div class="tl-i"><div class="tl-w">Week 2</div><div class="tl-c"><h4>Import members &amp; content</h4><p>Migrate your directory and University content off the Member Hub. Stand up Chapter groups and the event calendar.</p></div></div>
+    <div class="tl-i"><div class="tl-w">Week 3</div><div class="tl-c"><h4>App + Chapters live</h4><p>Train your team and Chapter leads. Test every feature. Tune permissions per tier.</p></div></div>
+    <div class="tl-i"><div class="tl-w">Week 4</div><div class="tl-c"><h4>Launch to members</h4><p>Invite operators to download the branded app. Slack keeps running throughout — nobody is moved.</p></div></div>
+  </div>
+</div>
+
+<!-- 10. CTA -->
+<div class="slide s-dk">
+  <div class="cta-c">
+    <div class="wordmark" style="justify-content:center;margin-bottom:30px"><span></span>Pavilion &nbsp;&times;&nbsp; GroupOS</div>
+    <h1 style="color:#fff;max-width:740px">See it with <b>your</b> data.</h1>
+    <p class="sub" style="max-width:560px;text-align:center;font-size:22px">A 15-minute walkthrough, then a Pavilion-branded pilot for one Chapter. Slack stays. Your members don't move.</p>
+    <div style="margin-top:30px;display:flex;gap:14px;justify-content:center;align-items:center;flex-wrap:wrap">
+      <a href="https://calendly.com/andy-groupos/groupos-demo" target="_blank" rel="noopener" style="display:inline-block;background:var(--pink);color:#fff;font-weight:800;font-size:18px;padding:15px 34px;border-radius:12px;text-decoration:none">Book a 15-minute demo</a>
+      <a href="https://groupos.com" target="_blank" rel="noopener" style="display:inline-block;border:1px solid rgba(255,255,255,.32);color:#fff;font-weight:700;font-size:16px;padding:14px 26px;border-radius:12px;text-decoration:none">Explore groupos.com &#8594;</a>
+    </div>
+  </div>
+</div>
+
+<script>
+  let c=0;
+  const sl=document.querySelectorAll('.slide'),t=sl.length;
+  function show(n){
+    if(n<0||n>=t)return;
+    sl[c].classList.remove('active');c=n;
+    sl[c].classList.add('active');
+    document.getElementById('ct').textContent=(c+1)+' / '+t;
+    document.getElementById('progress').style.width=((c+1)/t*100)+'%';
+    document.body.classList.toggle('dk',sl[c].classList.contains('s-dk'));
+  }
+  function next(){show(c+1)}
+  function prev(){show(c-1)}
+  document.addEventListener('keydown',e=>{
+    if(e.key==='ArrowRight'||e.key===' '){e.preventDefault();next()}
+    if(e.key==='ArrowLeft'){e.preventDefault();prev()}
+  });
+  let tx=0;
+  document.addEventListener('touchstart',e=>{tx=e.changedTouches[0].screenX});
+  document.addEventListener('touchend',e=>{const d=tx-e.changedTouches[0].screenX;if(Math.abs(d)>50){d>0?next():prev()}});
+  document.getElementById('progress').style.width=(1/t*100)+'%';
+</script>
+</body>
+</html>
