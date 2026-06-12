@@ -36,6 +36,11 @@
   .wm{position:fixed;bottom:30px;left:36px;z-index:100}
   .wm-logo{height:14px;opacity:.3}
   body.dk .wm-logo{filter:brightness(0) invert(1);opacity:.4}
+  .deckft{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:100;display:flex;gap:14px;align-items:center}
+  .deckft a.bk{background:var(--pink);color:#fff;font-weight:800;font-size:13px;padding:8px 18px;border-radius:999px;text-decoration:none}
+  .deckft a.gs{color:var(--txm);font-weight:600;font-size:13px;text-decoration:none;border-bottom:1px solid rgba(26,26,37,.2)}
+  body.dk .deckft a.gs{color:rgba(255,255,255,.72);border-bottom-color:rgba(255,255,255,.32)}
+  @media(max-width:768px){.deckft{bottom:60px}.deckft a.bk,.deckft a.gs{font-size:12px}}
   h1{font-family:'Lora',serif;font-size:60px;font-weight:400;line-height:1.08;letter-spacing:-1.5px}
   h2{font-family:'Lora',serif;font-size:45px;font-weight:400;line-height:1.12;letter-spacing:-.5px;margin-bottom:12px}
   h3{font-size:22px;font-weight:700;margin-bottom:6px}
@@ -108,6 +113,10 @@
   <button class="nb" onclick="prev()">&#8592;</button>
   <span class="ct" id="ct">1 / 10</span>
   <button class="nb" onclick="next()">&#8594;</button>
+</div>
+<div class="deckft">
+  <a class="bk" href="https://calendly.com/andy-groupos/groupos-demo" target="_blank" rel="noopener">Book a demo</a>
+  <a class="gs" href="https://groupos.com" target="_blank" rel="noopener">groupos.com</a>
 </div>
 
 <!-- 1. COVER -->
