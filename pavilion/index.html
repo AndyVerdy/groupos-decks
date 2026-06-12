@@ -40,6 +40,7 @@
   .deckft a.bk{background:var(--pink);color:#fff;font-weight:800;font-size:13px;padding:8px 18px;border-radius:999px;text-decoration:none}
   .deckft a.gs{color:var(--txm);font-weight:600;font-size:13px;text-decoration:none;border-bottom:1px solid rgba(26,26,37,.2)}
   body.dk .deckft a.gs{color:rgba(255,255,255,.72);border-bottom-color:rgba(255,255,255,.32)}
+  body.hideft .deckft{display:none}
   @media(max-width:768px){.deckft{bottom:60px}.deckft a.bk,.deckft a.gs{font-size:12px}}
   h1{font-family:'Lora',serif;font-size:60px;font-weight:400;line-height:1.08;letter-spacing:-1.5px}
   h2{font-family:'Lora',serif;font-size:45px;font-weight:400;line-height:1.12;letter-spacing:-.5px;margin-bottom:12px}
@@ -325,6 +326,7 @@
     document.getElementById('ct').textContent=(c+1)+' / '+t;
     document.getElementById('progress').style.width=((c+1)/t*100)+'%';
     document.body.classList.toggle('dk',sl[c].classList.contains('s-dk'));
+    document.body.classList.toggle('hideft',c===t-1);
   }
   function next(){show(c+1)}
   function prev(){show(c-1)}
